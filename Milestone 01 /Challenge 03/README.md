@@ -9,7 +9,7 @@ You will audit the codebase, fix 5 specific problems, document every decision in
 
 ## The Repository
 Fork and clone this repo to begin:
-[https://github.com/kalvium-program/dev-confessions](https://github.com/kalvium-program/dev-confessions)
+[https://github.com/kalviumcommunity/Project-Engineering.git](https://github.com/kalviumcommunity/Project-Engineering.git)
 
 The repo contains a working Node.js + Express application. It has an `index.js`, a few utility files, and no folder structure. Read every file before you open your editor to make changes.
 
