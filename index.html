@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+</head>
+<body>
+
+<h2>Task Manager</h2>
+
+<input id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<br><br>
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('active')">Active</button>
+<button onclick="setFilter('completed')">Completed</button>
+
+<ul id="list"></ul>
+
+<script>
+let tasks = [];
+let filter = "all";
+
+function addTask() {
+  const input = document.getElementById("taskInput");
+  const value = input.value;
+
+  if (value === "") return;
+
+  tasks.push({ text: value, done: false });
+  input.value = "";
+
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  render();
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    if (
+      filter === "all" ||
+      (filter === "active" && !task.done) ||
+      (filter === "completed" && task.done)
+    ) {
+      const li = document.createElement("li");
+
+      li.textContent = task.text + (task.done ? " ✔" : "");
+
+      li.onclick = function () {
+        tasks[index].done = !tasks[index].done;
+        render();
+      };
+
+      list.appendChild(li);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
