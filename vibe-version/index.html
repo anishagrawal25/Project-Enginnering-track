@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vibe Task Manager</title>
+  <style>
+    body { font-family: Arial; background: #111; color: white; text-align: center; }
+    input, button { padding: 10px; margin: 5px; }
+    li { cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h2>Vibe Task Manager</h2>
+
+<input id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<br><br>
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('active')">Active</button>
+<button onclick="setFilter('completed')">Completed</button>
+
+<ul id="list"></ul>
+
+<script>
+let tasks = [];
+let filter = "all";
+
+function addTask() {
+  const input = document.getElementById("taskInput");
+  if (!input.value) return;
+  tasks.push({ text: input.value, done: false });
+  input.value = "";
+  render();
+}
+
+function toggle(i) {
+  tasks[i].done = !tasks[i].done;
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  render();
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  tasks.forEach((t, i) => {
+    if (
+      filter === "all" ||
+      (filter === "active" && !t.done) ||
+      (filter === "completed" && t.done)
+    ) {
+      const li = document.createElement("li");
+      li.textContent = t.text + (t.done ? " ✔" : "");
+      li.onclick = () => toggle(i);
+      list.appendChild(li);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
