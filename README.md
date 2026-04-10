@@ -24,8 +24,8 @@ This challenge involves building the same Task Manager application twice to comp
 
 ## Live Deployments
 
-- Vibe version: https://v0-task-management-app-nine-sooty.vercel.app/
-- Pair version: https://anishagrawal25.github.io/Project-Enginnering-track/
+- Vibe version: https://anishagrawal25.github.io/Project-Enginnering-track/vibe-version/
+- Pair version: https://anishagrawal25.github.io/Project-Enginnering-track/pair-version/
 
 ---
 
@@ -54,6 +54,8 @@ This challenge involves building the same Task Manager application twice to comp
 - **Pair tool used:** GitHub Copilot
 
 ---
+
+Final submission branch
 
 ## How to Submit
 

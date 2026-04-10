@@ -8,7 +8,7 @@ This folder contains the task manager app built using an AI pair programming ass
 **Suggestions accepted:** ~15  
 **Suggestions rejected:** ~5
 
-**Live URL:** https://anishagrawal25.github.io/Project-Enginnering-track/
+**Live URL:** https://anishagrawal25.github.io/Project-Enginnering-track/pair-version/
 
 ## Notes
 
