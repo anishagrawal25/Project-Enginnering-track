@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #0f172a;
+        color: white;
+        text-align: center;
+        padding: 50px;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    input {
+        padding: 10px;
+        width: 200px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+    }
+
+    button {
+        padding: 10px 15px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #3b82f6;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #2563eb;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    li {
+        background: #1e293b;
+        margin: 10px auto;
+        padding: 10px;
+        width: 300px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .done {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+
+    .delete-btn {
+        background-color: red;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+</style>
+
+</head>
+<body>
+
+<h2>Task Manager</h2>
+
+<input id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<br><br>
+
+<button onclick="setFilter('all')">All</button>
+<button onclick="setFilter('active')">Active</button>
+<button onclick="setFilter('completed')">Completed</button>
+
+<ul id="list"></ul>
+
+<script>
+let tasks = [];
+let filter = "all";
+
+function addTask() {
+  const input = document.getElementById("taskInput");
+  const value = input.value;
+
+  if (value === "") return;
+
+  tasks.push({ text: value, done: false });
+  input.value = "";
+
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  render();
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  tasks.forEach((task, index) => {
+    if (
+      filter === "all" ||
+      (filter === "active" && !task.done) ||
+      (filter === "completed" && task.done)
+    ) {
+      const li = document.createElement("li");
+
+      li.textContent = task.text + (task.done ? " ✔" : "");
+
+      li.onclick = function () {
+        tasks[index].done = !tasks[index].done;
+        render();
+      };
+
+      list.appendChild(li);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
