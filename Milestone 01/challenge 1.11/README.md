@@ -4,6 +4,8 @@ An anonymous confession app for developers to share their bugs, deadline stress,
 
 ## Endpoints
 
+live link :=
+
 - GET /api/v1/confessions
 - POST /api/v1/confessions
 - GET /api/v1/confessions/:id
@@ -11,6 +13,7 @@ An anonymous confession app for developers to share their bugs, deadline stress,
 - DELETE /api/v1/confessions/:id
 
 ## Run with:
+
 npm install && npm start
 
 ## Port: 3000
