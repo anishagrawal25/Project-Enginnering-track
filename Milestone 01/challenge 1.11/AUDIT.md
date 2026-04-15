@@ -1,0 +1,5 @@
+- app.js line 25: function handleAll() does validation, DB write, and response formatting
+- variables like d, x, arr are meaningless
+- API URL hardcoded in multiple files
+- No folder structure (everything in one file)
+- No comments explaining logic
