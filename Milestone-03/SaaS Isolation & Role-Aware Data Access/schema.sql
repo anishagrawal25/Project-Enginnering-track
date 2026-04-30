@@ -1,48 +1,108 @@
--- CorpFlow v1.0 Database Schema
--- Standard tables for users, projects, and billing.
+-- CorpFlow v2.0 Secure Multi-Tenant Schema
 
+-- Drop in correct order (due to FK dependencies)
 DROP TABLE IF EXISTS billing_details;
 DROP TABLE IF EXISTS projects;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS tenants;
 
-CREATE TABLE users (
+-- =========================
+-- TENANTS TABLE (NEW)
+-- =========================
+CREATE TABLE tenants (
     id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150),
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'employee',
-    salary DECIMAL(10,2) -- Base salary for payroll management
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- =========================
+-- USERS TABLE (FIXED)
+-- =========================
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    tenant_id INTEGER NOT NULL REFERENCES tenants(id),
+
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+
+    role VARCHAR(20) NOT NULL 
+        CHECK (role IN ('admin','manager','user')),
+
+    salary DECIMAL(10,2), -- 🔒 sensitive
+
+    created_at TIMESTAMP DEFAULT NOW(),
+
+    UNIQUE(email, tenant_id)
+);
+
+-- =========================
+-- PROJECTS TABLE (FIXED)
+-- =========================
 CREATE TABLE projects (
     id SERIAL PRIMARY KEY,
+    tenant_id INTEGER NOT NULL REFERENCES tenants(id),
+
     name VARCHAR(100) NOT NULL,
     description TEXT,
     status VARCHAR(20) DEFAULT 'active',
-    budget DECIMAL(12,2)
+    budget DECIMAL(12,2),
+
+    owner_id INTEGER NOT NULL REFERENCES users(id),
+
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- =========================
+-- BILLING TABLE (FIXED)
+-- =========================
 CREATE TABLE billing_details (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
+    tenant_id INTEGER NOT NULL REFERENCES tenants(id),
+
+    user_id INTEGER NOT NULL REFERENCES users(id),
+
     card_holder_name VARCHAR(100),
-    card_last4 VARCHAR(4),
+    card_last4 VARCHAR(4), -- 🔒 sensitive
     expiry_date VARCHAR(5),
-    billing_address TEXT
+    billing_address TEXT,  -- 🔒 sensitive
+
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Seed Initial Data
-INSERT INTO users (full_name, email, password_hash, role, salary) VALUES
-('Alice Johnson', 'alice@pouch.io', 'pbkdf2:sha256:600000$hasher$81726a', 'admin', 125000.00),
-('Bob Smith', 'bob@pouch.io', 'pbkdf2:sha256:600000$hasher$81726b', 'manager', 95000.00),
-('Charlie Davis', 'charlie@velocity.com', 'pbkdf2:sha256:600000$hasher$81726c', 'admin', 140000.00),
-('David Miller', 'david@velocity.com', 'pbkdf2:sha256:600000$hasher$81726d', 'employee', 75000.00);
+-- =========================
+-- INDEXES (IMPORTANT)
+-- =========================
+CREATE INDEX idx_users_tenant ON users(tenant_id);
+CREATE INDEX idx_projects_tenant ON projects(tenant_id);
+CREATE INDEX idx_billing_tenant ON billing_details(tenant_id);
 
-INSERT INTO projects (name, description, status, budget) VALUES
-('Pouch Portal', 'Customer portal for Pouch.io', 'active', 50000.00),
-('Velocity Engine', 'Back-end engine for Velocity', 'active', 120000.00),
-('Secret R&D', null, 'inactive', 250000.00);
+CREATE INDEX idx_users_tenant_email ON users(tenant_id, email);
 
-INSERT INTO billing_details (user_id, card_holder_name, card_last4, expiry_date, billing_address) VALUES
-(1, 'Alice Johnson', '4242', '12/28', '123 Tech Lane, SF'),
-(3, 'Charlie Davis', '9182', '08/26', '789 Velocity Rd, NY');
+-- =========================
+-- SEED DATA (UPDATED)
+-- =========================
+
+-- Tenants
+INSERT INTO tenants (name) VALUES
+('Pouch'),
+('Velocity');
+
+-- Users
+-- tenant_id: 1 = Pouch, 2 = Velocity
+INSERT INTO users (tenant_id, full_name, email, password_hash, role, salary) VALUES
+(1, 'Alice Johnson', 'alice@pouch.io', 'pbkdf2:sha256:600000$hasher$81726a', 'admin', 125000.00),
+(1, 'Bob Smith', 'bob@pouch.io', 'pbkdf2:sha256:600000$hasher$81726b', 'manager', 95000.00),
+(2, 'Charlie Davis', 'charlie@velocity.com', 'pbkdf2:sha256:600000$hasher$81726c', 'admin', 140000.00),
+(2, 'David Miller', 'david@velocity.com', 'pbkdf2:sha256:600000$hasher$81726d', 'user', 75000.00);
+
+-- Projects
+INSERT INTO projects (tenant_id, name, description, status, budget, owner_id) VALUES
+(1, 'Pouch Portal', 'Customer portal for Pouch.io', 'active', 50000.00, 1),
+(2, 'Velocity Engine', 'Back-end engine for Velocity', 'active', 120000.00, 3),
+(2, 'Secret R&D', NULL, 'inactive', 250000.00, 3);
+
+-- Billing Details
+INSERT INTO billing_details (tenant_id, user_id, card_holder_name, card_last4, expiry_date, billing_address) VALUES
+(1, 1, 'Alice Johnson', '4242', '12/28', '123 Tech Lane, SF'),
+(2, 3, 'Charlie Davis', '9182', '08/26', '789 Velocity Rd, NY');

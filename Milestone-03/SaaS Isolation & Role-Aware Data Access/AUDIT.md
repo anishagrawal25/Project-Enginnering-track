@@ -1,28 +1,47 @@
-# Pre-Refactor Audit
+## Pre-Refactor Audit
 
-## 1. Missing Tenant Isolation
+1. No tenant isolation
 
-- users table has no tenant_id
-- consequence: query returns users from all companies
+- None of the tables (users, projects, billing_details) have tenant_id
+- A query like SELECT \* FROM users returns data across all companies
+- Example: pouch.io and velocity.com users are mixed
 
-## 2. No Tenant Boundary in Relationships
+2. Users from different companies share same table
 
-- projects.owner_id references users.id only
-- consequence: project can link to user from another tenant
+- Alice (pouch) and Charlie (velocity) exist together
+- No boundary separating organisations
 
-## 3. Sensitive Data Exposure
+3. No relationship between projects and users
 
-- salary field visible in users table
-- consequence: any API response leaks salary
+- projects table has no owner_id
+- No way to restrict project visibility per user or tenant
 
-## 4. No Role Restrictions
+4. billing_details not tenant-safe
 
-- role exists but not enforced anywhere
+- billing_details references users(id)
+- But users are not tenant-scoped → indirect cross-tenant leak possible
 
-## 5. No Indexing
+5. Sensitive fields exposed
 
-- queries will scan full table
+- salary → financial data
+- card_last4, billing_address → billing info
+- No restrictions on access
 
-## 6. Raw DB Responses
+6. No role enforcement
 
-- API returns full user object including salary
+- role column exists but:
+  - no CHECK constraint
+  - no logic enforcing access
+
+7. No indexes
+
+- Queries will scan full table
+- Not scalable
+
+8. Email not unique per tenant
+
+- Currently global ambiguity possible
+
+9. Default role = 'employee'
+
+- But assignment expects ('admin', 'manager', 'user')
